@@ -12,15 +12,16 @@ class Page(Base):
     id = Column(Integer, primary_key=True)
     url = Column(Unicode, nullable=False)
     html = Column(Unicode, nullable=False)
+    numresults = Column(Integer, nullable=False)
     date = Column(DateTime, nullable=False)
     olderurl = Column(Unicode, nullable=False)
     newerurl = Column(Unicode, nullable=False)
     hit = Column(DateTime, nullable=False)
     
-    def __init__(self, url, html, date, olderurl, newerurl):
+    def __init__(self, url, html, numresults, olderurl, newerurl):
         self.url = url
         self.html = html
-        self.date = date
+        self.numresults = numresults
         self.olderurl = olderurl
         self.newerurl = newerurl
         self.hit = datetime.now()
