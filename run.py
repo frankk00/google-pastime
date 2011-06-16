@@ -1,3 +1,4 @@
+import re
 import time
 import urllib
 import urllib2
@@ -19,10 +20,10 @@ endtime = datetime.strptime('Jun 7, 2011', '%b %d, %Y')
 
 useragent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_7) AppleWebKit/534.30 (KHTML, like Gecko) Chrome/12.0.742.91 Safari/534.30'
 
-lastpage = Session.query(Page).order_by(desc(Page.id)).first()
-if lastpage:
-    url = lastpage.newerurl
-    lasturl = lastpage.url
+page = Session.query(Page).order_by(desc(Page.id)).first()
+if page:
+    url = page.newerurl
+    lasturl = page.url
 else:
     url = initURL
     lasturl = ''
@@ -42,8 +43,18 @@ while True:
     print 'hit ' + url + ' got ' + str(numresults) + ' results'
     rhscol = CSSSelector('div#rhscol')(doc)[0]
     links = [a for a in rhscol.getiterator('a')]
-    assert 'Older' in links[1].text
-    assert 'Newer' in links[2].text
+    if len(links) != 3 or 'Older' not in links[1].text or 'Newer' not in links[2].text:
+        print 'Cant find older and newer links here, backing up'
+        oldurl = page.url
+        match = re.search('mbl_hs:(\d+),mbl_he:(\d+),mbl_rs:(\d+),mbl_re:(\d+)', oldurl)
+        mbl_hs = int(match.group(1)) + 600
+        mbl_he = int(match.group(2)) + 600
+        mbl_rs = int(match.group(3)) + 600
+        mbl_re = int(match.group(4)) + 600
+        url = oldurl.replace(match.group(0), 'mbl_hs:'+str(mbl_hs)+',mbl_he:'+str(mbl_he)+',mbl_rs:'+str(mbl_rs)+',mbl_re:'+str(mbl_re))
+        lasturl = oldurl
+        time.sleep(10)
+        continue
     olderurl = u'http://www.google.com' + links[1].attrib['href']
     newerurl = u'http://www.google.com' + links[2].attrib['href']
     page = Page(url, html, numresults, olderurl, newerurl)
