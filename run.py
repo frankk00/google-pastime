@@ -4,6 +4,7 @@ import urllib2
 from lxml import etree
 from lxml.cssselect import CSSSelector
 from datetime import datetime
+from sqlalchemy import desc
 
 from page import Page
 from meta import Session
@@ -13,23 +14,32 @@ urlparam = urllib.urlencode({'q':search})
 
 initURL = u'http://www.google.com/search?hl=en&source=hp&biw=1362&bih=651&' + urlparam + u'&aq=f&aqi=&oq=&&tbm=mbl:1&tbs=mbl:1,mbl_hs:1307059378,mbl_he:1307145778,mbl_rs:1307070778,mbl_re:1307102578,mbl_dr:o'
 
+begintime = datetime.strptime('Jun 3, 2011', '%b %d, %Y')
+endtime = datetime.strptime('Jun 7, 2011', '%b %d, %Y')
+
 useragent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_7) AppleWebKit/534.30 (KHTML, like Gecko) Chrome/12.0.742.91 Safari/534.30'
 
-url = initURL
-lasturl = ''
+lastpage = Session.query(Page).order_by(desc(Page.id)).first()
+if lastpage:
+    url = lastpage.newerurl
+    lasturl = lastpage.url
+else:
+    url = initURL
+    lasturl = ''
+
 while True:
     req = urllib2.Request(url)
     req.add_header("User-Agent", useragent)
     if lasturl:
         req.add_header('Referer', lasturl)
-    print 'hitting ' + url
     html = unicode(urllib2.urlopen(req).read(), errors='ignore')
     doc = etree.HTML(html)
     rtr = CSSSelector('ol#rtr')(doc)
     if rtr:
-        numresults = len(rtr[0].getchildren()))
+        numresults = len(rtr[0].getchildren())
     else:
         numresults = 0
+    print 'hit ' + url + ' got ' + str(numresults) + ' results'
     rhscol = CSSSelector('div#rhscol')(doc)[0]
     links = [a for a in rhscol.getiterator('a')]
     assert 'Older' in links[1].text
@@ -39,5 +49,12 @@ while True:
     page = Page(url, html, numresults, olderurl, newerurl)
     Session.add(page)
     Session.commit()
+    lasturl = url
     url = newerurl
+    for rtdm in CSSSelector('span.rtdm')(doc):
+        td, date = [text for text in rtdm.itertext()]
+        day = datetime.strptime(date, '%b %d, %Y')
+        if day > endtime:
+            print 'Quitting, ' + str(day) + ' > ' + str(endtime)
+            exit()
     time.sleep(10)

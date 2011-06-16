@@ -13,7 +13,6 @@ class Page(Base):
     url = Column(Unicode, nullable=False)
     html = Column(Unicode, nullable=False)
     numresults = Column(Integer, nullable=False)
-    date = Column(DateTime, nullable=False)
     olderurl = Column(Unicode, nullable=False)
     newerurl = Column(Unicode, nullable=False)
     hit = Column(DateTime, nullable=False)
