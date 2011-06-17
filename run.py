@@ -10,12 +10,7 @@ from sqlalchemy import desc
 from page import Page
 from meta import Session
 
-search = '#hashtag'
-urlparam = urllib.urlencode({'q':search})
-
-initURL = u'http://www.google.com/search?hl=en&source=hp&biw=1362&bih=651&' + urlparam + u'&aq=f&aqi=&oq=&&tbm=mbl:1&tbs=mbl:1,mbl_hs:1307059378,mbl_he:1307145778,mbl_rs:1307070778,mbl_re:1307102578,mbl_dr:o'
-
-begintime = datetime.strptime('Jun 3, 2011', '%b %d, %Y')
+initURL = u'http://www.google.com/search?hl=en&source=hp&biw=1362&bih=651&q=%23hashtag&aq=f&aqi=&oq=&&tbm=mbl:1&tbs=mbl:1,mbl_hs:1307059378,mbl_he:1307145778,mbl_rs:1307070778,mbl_re:1307102578,mbl_dr:o'
 endtime = datetime.strptime('Jun 7, 2011', '%b %d, %Y')
 
 useragent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_7) AppleWebKit/534.30 (KHTML, like Gecko) Chrome/12.0.742.91 Safari/534.30'
