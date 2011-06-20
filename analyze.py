@@ -1,3 +1,6 @@
+from datetime import datetime
+from datetime import timedelta
+
 import lxml.html as lxml
 from lxml.cssselect import CSSSelector
 
@@ -13,6 +16,7 @@ for page in Session.query(Page).order_by(Page.id):
         continue
     for tweet in rtr[0].getchildren():
         twitterlink = CSSSelector('span.a')(tweet)
+        rtdelta = int(CSSSelector('div.rtdelta')(tweet)[0].text)
         assert len(twitterlink) == 1 and twitterlink[0].text == 'Twitter'
         toclear = []
         c = twitterlink[0]
@@ -22,7 +26,8 @@ for page in Session.query(Page).order_by(Page.id):
         for c in toclear:
             c.clear()
         text = lxml.tostring(tweet, encoding=unicode, method='text')
-        t = Tweet(text)
+        when = page.hit - timedelta(seconds=rtdelta)
+        t = Tweet(text, when)
         if Session.query(Tweet).filter(Tweet.md5==t.md5).first() is None:
             Session.add(t)
         else:

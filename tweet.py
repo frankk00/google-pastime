@@ -12,10 +12,12 @@ class Tweet(Base):
     
     id = Column(Integer, primary_key=True)
     text = Column(Unicode, nullable=False)
-    md5 = Column(Unicode, nullable=False, unique=True)
+    when = Column(DateTime, nullable=False, index=True)
+    md5 = Column(Unicode, nullable=False, index=True, unique=True)
     
-    def __init__(self, text):
+    def __init__(self, text, when):
         self.text = text
+        self.when = when
         h = hashlib.new('md5')
         h.update(text.encode('ascii', 'ignore'))
         self.md5 = h.hexdigest()
