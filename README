@@ -1,0 +1,13 @@
+Pirate API for Google Realtime to liberate historical twitter data saved there into sqlite database and CSV format.  It just crawls through all the required web pages and parses the necessary data out of them.
+
+Requirements
+- python 2.6+
+- sqlalchemy
+- lxml
+
+Steps
+1. Edit run.py, replace 'initURL' with the URL of the first google realtime result page you want to hit, and 'endtime' for the datetime of the last tweet you want saved.
+2. Run init.py, should create sqlite database.db.
+3. Run run.py, it'll slowly hit google and fill the db with page HTML.  Can be re-run without losing it's place.
+4. Run analyze.py, it'll parse out tweets from all the pages you saved and save them plaintext in the db.
+5. Run export.py, it'll create tweets.csv with plain text tweets and dates.
